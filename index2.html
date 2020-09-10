@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="origin-trial"
+      content="AqKO+aj1zDwxxUbP3bnpykNDcFiz/aAl0r0TSy7MZprzOPPJbQVC6lnCjgMFG02CJqQq5yHAa5fCyTaBD1jOdw4AAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJmZWF0dXJlIjoiUXVpY1RyYW5zcG9ydCIsImV4cGlyeSI6MTU5OTM3NTg5OX0="
+    />
+    <style>
+      .box {
+        display: flex;
+        flex-direction: row;
+      }
+      .viewer {
+        width: 720px;
+        height: 620px;
+        text-align: center;
+        border: 1px solid gray;
+        margin: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <hr />
+      <div>
+        WebCodecs supported:
+        <span id="web-codecs-supported">detecting...</span>
+      </div>
+      <input
+        type="button"
+        id="prepareConnection"
+        value="prepareConnection"
+        onclick="prepareConnection()"
+      />
+      <textarea
+        id="QuicTransportID"
+        type="text"
+        name="QuicTransportID"
+        value="?????"
+        cols="50"
+        readonly
+      ></textarea>
+      <div>
+        <button id="start">start</button>
+      </div>
+      <div class="box">
+        <div class="encoder viewer">
+          <h2>encoder</h2>
+          <video autoplay></video>
+          <div>
+            timestamp: <span class="timestamp"></span><br />
+            type: <span class="type"></span><br />
+            byteLength: <span class="byte-length"></span>
+          </div>
+        </div>
+        <div class="decoder viewer">
+          <h2>decoder</h2>
+          <canvas></canvas>
+        </div>
+      </div>
+      <div>
+        <h2>references</h2>
+        <ul>
+          <li>
+            <a href="https://wicg.github.io/web-codecs/">
+              W3C CG draft - WebCodecs
+            </a>
+          </li>
+        </ul>
+      </div>
+    </main>
+  </body>
+  <script src="./script2.js"></script>
+</html>
