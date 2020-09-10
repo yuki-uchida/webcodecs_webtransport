@@ -1,0 +1,8 @@
+{
+  "python.pythonPath": "/Users/yuki_uchida/webrtc_research/webcodecs_webtransport/.venv/bin/python3.8",
+  "editor.formatOnSave": true,
+  "python.linting.pycodestyleEnabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.formatting.provider": "black",
+  "notebook.kernelProviderAssociations": []
+}
