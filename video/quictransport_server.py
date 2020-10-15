@@ -194,7 +194,7 @@ class sendDataHandler:
                 if event.stream_id % 4 == 0 and event.end_stream is False:
                     payload = event.data
                     self.connection.send_stream_data(event.stream_id, payload, False)
-            # payload = event.data
+            # payload = event.dataf
             # print("payload", event, event.data)
             # self.connection.send_datagram_frame(payload)
         if isinstance(event, DatagramFrameReceived):

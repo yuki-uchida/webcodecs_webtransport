@@ -1,10 +1,4 @@
 const $encoderVideo = document.querySelector(".encoder video");
-const $encoderTimestamp = document.querySelector(".encoder .timestamp");
-const $encoderType = document.querySelector(".encoder .type");
-const $encoderByteLength = document.querySelector(".encoder .byte-length");
-const $ignoreSync = document.querySelector("#ignore-sync");
-const $delay = document.querySelector("#delay");
-const $packetLostRatio = document.querySelector("#packet-lost-ratio");
 const $prepareConnectionButton = document.querySelector(
   "#prepareConnectionButton"
 );
@@ -18,28 +12,6 @@ const $sendVideoWithBidirectionalStreamButton = document.querySelector(
 
 const $decoderCanvas = document.querySelector(".decoder canvas");
 const ctx = $decoderCanvas.getContext("2d");
-
-let packetLostRatio = 0.0;
-let delay = 100;
-let ignoreSync = false;
-let seq = 0;
-const checkSupported = () => {
-  return !!window.VideoEncoder;
-};
-const supported = checkSupported();
-if (!supported) {
-  alert(
-    [
-      "Your browser does not support WebCodecs.",
-      "use Chrome with M87 and enable `#enable-experimental-web-platform-features`",
-      "for experiencing this experimental web app.",
-    ].join(" ")
-  );
-}
-document.querySelector("#web-codecs-supported").innerHTML = supported
-  ? "yes"
-  : "no";
-
 async function prepareConnection() {
   $prepareConnectionButton.setAttribute("disabled", "disabled");
   const url = "quic-transport://localhost:4433/webcodecs_webtransport";
@@ -62,7 +34,6 @@ async function prepareConnection() {
   console.log("startReceivingBidirectionalStream");
   startReceivingBidirectionalStream();
   globalThis.streamNumber = 1;
-  // console.log(transport);
 }
 async function startReceivingStream() {
   let reader = globalThis.currentTransport.receiveStreams().getReader();
@@ -88,8 +59,15 @@ async function startReceivingBidirectionalStream() {
       return;
     }
     console.log(value)
+    // if(value[0] == 0) continue
     const view   = new DataView(value.buffer)
-    const size   = view.getUint32(0)
+    let size = null
+    try{
+      size = view.getUint32(0)
+    }catch{
+      console.log('error size')
+      continue
+    }
     let   buffer = value.slice(4)
 
     while (buffer.length < size) {
@@ -98,9 +76,13 @@ async function startReceivingBidirectionalStream() {
     }
 
     // Encode Chunk
+    try{
     const chunk   = CBOR.decode(buffer.buffer)
     const encoded = new EncodedVideoChunk(chunk)
     globalThis.decoder.decode(encoded)
+    } catch {
+      continue
+    }
   }
 }
 async function readDataFromStream(stream, number) {
@@ -129,7 +111,7 @@ async function startReceivingDatagram() {
     const { value, done } = await reader.read();
     // globalThis.decoder.decode(value);
     // let result = new TextDecoder("ascii").decode(value);
-    console.log(value);
+    // console.log(value);
     if (done) {
       break;
     }
@@ -235,10 +217,19 @@ const sendVideoWithBidirectionalStream = async () => {
         type, timestamp, duration,
         data: new Uint8Array(data),
       }))
+      // 4byteのバッファを作成？
       const size = new Uint8Array(4)
+      // size.buffer は ArrayBuffer
+      // DataBiewはバッファを作成した後、そのバッファにバイナリデータを入出力するためのオブジェクト
+      // `new DataView( buffer, 128 ) ;` の場合、128byte~末尾までのバイナリを操作する
+      // ArrayBufferは、固定長のバイナリデータを取り扱うための、物理メモリ領域(バッファ)を確保する機能を備えたオブジェクト
+      // 内容を読み書きするには、TypedArray(Uint8Arrayなど)にするか、DataViewを作成する必要がある
       const view = new DataView(size.buffer)
+      console.log(size,encoded.length)
+      // setUint32で0番目にサイズを入れてる？
       view.setUint32(0, encoded.length)
-      console.log(type,timestamp,duration)
+      // console.log(...size)
+      // console.log(...encoded)
       if (globalThis.writer) {
         writer.write(new Uint8Array([...size, ...encoded]));
         // writer.write(new Uint8Array([65, 66, 67]));

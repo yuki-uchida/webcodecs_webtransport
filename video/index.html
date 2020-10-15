@@ -78,6 +78,24 @@
       </div>
     </main>
   </body>
-  <script src="cbor.js"></script>
-  <script src="./script2.js"></script>
+  <script>
+    const checkSupported = () => {
+      return !!window.VideoEncoder;
+    };
+    const supported = checkSupported();
+    if (!supported) {
+      alert(
+        [
+          "Your browser does not support WebCodecs.",
+          "use Chrome with M87 and enable `#enable-experimental-web-platform-features`",
+          "for experiencing this experimental web app.",
+        ].join(" ")
+      );
+    }
+    document.querySelector("#web-codecs-supported").innerHTML = supported
+      ? "yes"
+      : "no";
+  </script>
+  <script src="../cbor.js"></script>
+  <script src="./script.js"></script>
 </html>
