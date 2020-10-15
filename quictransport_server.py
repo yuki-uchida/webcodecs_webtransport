@@ -115,7 +115,7 @@ def addConnections(new_connection, new_protocol) -> None:
         )
         payload = str(f"joined={new_quic_transport_id}").encode("ascii")
         connection_dict["connection"].send_stream_data(response_id, payload, True)
-        # connection_dict["protocol"].transmit()
+        connection_dict["protocol"].transmit()
 
     connections_list[new_quic_transport_id] = {
         "connection": new_connection,
@@ -125,10 +125,8 @@ def addConnections(new_connection, new_protocol) -> None:
     response_id = new_connection.get_next_available_stream_id(is_unidirectional=True)
     payload = str(f"quic_transport_id={new_quic_transport_id}").encode("ascii")
     new_connection.send_stream_data(response_id, payload, True)
-    # new_protocol.transmit()
+    new_protocol.transmit()
     for quic_transport_id, connection_dict in connections_list.items():
-        # if new_connection == connection_dict["connection"]:
-        #     continue
         if new_quic_transport_id == quic_transport_id:
             continue
         response_id = new_connection.get_next_available_stream_id(
@@ -136,7 +134,8 @@ def addConnections(new_connection, new_protocol) -> None:
         )
         payload = str(f"joined={quic_transport_id}").encode("ascii")
         new_connection.send_stream_data(response_id, payload, True)
-        # new_protocol.transmit()
+        new_protocol.transmit()
+    # print(connections_list)
     return new_quic_transport_id
 
 
@@ -184,15 +183,30 @@ class sendDataHandler:
         removeConnections(self.connection, self.proto)
 
     def quic_event_received(self, event: QuicEvent) -> None:
+        if isinstance(event, StreamDataReceived):
+            if event.end_stream:
+                response_id = event.stream_id
+                payload = str(len(event.data)).encode("ascii")
+                self.connection.send_stream_data(response_id, payload, True)
+            else:
+                # Stream_idが0の場合にはbidirectional-stream。
+                print(event)
+                if event.stream_id % 4 == 0 and event.end_stream is False:
+                    payload = event.data
+                    self.connection.send_stream_data(event.stream_id, payload, False)
+            # payload = event.data
+            # print("payload", event, event.data)
+            # self.connection.send_datagram_frame(payload)
         if isinstance(event, DatagramFrameReceived):
             payload = event.data
-            print("payload")
-            # self.connection.send_datagram_frame(payload)
-            for quic_transport_id, connection_dict in connections_list.items():
-                if self.quic_transport_id == quic_transport_id:
-                    continue
-                connection_dict["connection"].send_datagram_frame(payload)
-                connection_dict["protocol"].transmit()
+            print("payload", event, event.data)
+            self.connection.send_datagram_frame(payload)
+            # for quic_transport_id, connection_dict in connections_list.items():
+            #     if self.quic_transport_id == quic_transport_id:
+            #         continue
+
+            #     connection_dict["connection"].send_datagram_frame(payload)
+            #     connection_dict["protocol"].transmit()
 
 
 # QuicTransportProtocol handles the beginning of a QuicTransport connection: it
@@ -287,8 +301,6 @@ class QuicTransportProtocol(QuicConnectionProtocol):
         if origin.hostname != "localhost":
             raise Exception("Wrong origin specified")
         # Dispatch the incoming connection based on the path specified in the
-        # URL.
-        print(origin, path)
         if path.path == "/webcodecs_webtransport":
             self.handler = sendDataHandler(self, self._quic)
             print("handler attached!!!!!!!")

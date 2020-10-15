@@ -30,7 +30,7 @@
       </div>
       <input
         type="button"
-        id="prepareConnection"
+        id="prepareConnectionButton"
         value="prepareConnection"
         onclick="prepareConnection()"
       />
@@ -43,7 +43,13 @@
         readonly
       ></textarea>
       <div>
-        <button id="start">start</button>
+        <button id="getUserMediaButton">getUserMedia</button>
+      </div>
+      <div>
+        <button id="sendVideoWithDatagramButton">sendVideoWithDatagram</button>
+        <button id="sendVideoWithBidirectionalStreamButton">
+          sendVideoWithBidirectionalStream
+        </button>
       </div>
       <div class="box">
         <div class="encoder viewer">
@@ -72,5 +78,6 @@
       </div>
     </main>
   </body>
+  <script src="cbor.js"></script>
   <script src="./script2.js"></script>
 </html>
