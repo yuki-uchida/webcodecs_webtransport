@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="origin-trial"
+      content="AqKO+aj1zDwxxUbP3bnpykNDcFiz/aAl0r0TSy7MZprzOPPJbQVC6lnCjgMFG02CJqQq5yHAa5fCyTaBD1jOdw4AAABQeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJmZWF0dXJlIjoiUXVpY1RyYW5zcG9ydCIsImV4cGlyeSI6MTU5OTM3NTg5OX0="
+    />
+    <meta
+      http-equiv="origin-trial"
+      content="Agsap1ik5FQQde61N6E3ia7B9Hf30FUsTQC+xR6/4IbmOchyNpf3bazRMe2QBEF51vJrhLEqNAzCwGMMjZHztQYAAABMeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJmZWF0dXJlIjoiV2ViQ29kZWNzIiwiZXhwaXJ5IjoxNjA2OTY0OTkwfQ=="
+    />
+    <style>
+      .box {
+        display: flex;
+        flex-direction: row;
+      }
+      .viewer {
+        width: 720px;
+        height: 620px;
+        text-align: center;
+        border: 1px solid gray;
+        margin: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <hr />
+      <div>
+        WebCodecs supported:
+        <span id="web-codecs-supported">detecting...</span>
+      </div>
+      <input
+        type="button"
+        id="prepareConnectionButton"
+        value="prepareConnection"
+        onclick="prepareConnection()"
+      />
+      <textarea
+        id="QuicTransportID"
+        type="text"
+        name="QuicTransportID"
+        value="?????"
+        cols="50"
+        readonly
+      ></textarea>
+      <div>
+        <button id="getUserMediaButton">getUserMedia</button>
+      </div>
+      <div>
+        <button id="sendVideoWithBidirectionalStreamButton">
+          sendVideoWithBidirectionalStream
+        </button>
+      </div>
+      <div class="box">
+        <div>
+          <div class="label">Local audio:</div>
+          <audio id="LocalAudio" autoplay="" controls="" muted=""></audio>
+        </div>
+        <div>
+          <div class="label">Remote audio:</div>
+          <audio id="RemoteAudio" autoplay="" controls="" muted=""></audio>
+        </div>
+      </div>
+    </main>
+  </body>
+  <script>
+    const checkSupported = () => {
+      return !!window.VideoEncoder;
+    };
+    const supported = checkSupported();
+    if (!supported) {
+      alert(
+        [
+          "Your browser does not support WebCodecs.",
+          "use Chrome with M87 and enable `#enable-experimental-web-platform-features`",
+          "for experiencing this experimental web app.",
+        ].join(" ")
+      );
+    }
+    document.querySelector("#web-codecs-supported").innerHTML = supported
+      ? "yes"
+      : "no";
+  </script>
+  <script src="../cbor.js"></script>
+  <script src="./script.js"></script>
+</html>
