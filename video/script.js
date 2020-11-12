@@ -135,6 +135,13 @@ async function startReceivingDatagram() {
         chunkQueue.push(chunk);
         if (chunkQueue.length == chunk.packetSize) {
           // [{type: , timestamp: , data: ,},{},{}]みたいな形になってるので、最初のプロパティ郡と全てのdataを取り出す
+          // packetNumberがずれて送られてくるかもしれないのでそれを並び替える
+          chunkQueue.sort(function (a, b) {
+            if (a.packetNumber < b.packetNumber) return -1;
+            if (a.packetNumber > b.packetNumber) return 1;
+            return 0;
+          });
+
           const mergedPacket = {};
           mergedPacket.type = chunkQueue[0].type;
           mergedPacket.duration = chunkQueue[0].duration;
@@ -204,6 +211,7 @@ const sendVideoWithDatagram = async () => {
     let i = 0;
     const packetSize = Math.ceil(data.byteLength / 1000);
     while (i < data.byteLength) {
+      const packetNumber = parseInt(i / 1000);
       const encoded = new Uint8Array(
         CBOR.encode({
           type,
@@ -211,6 +219,7 @@ const sendVideoWithDatagram = async () => {
           duration,
           sequenceNumber,
           packetSize,
+          packetNumber,
           data: new Uint8Array(data.slice(i, i + 1000)),
         })
       );
